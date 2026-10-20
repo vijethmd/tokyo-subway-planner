@@ -1,0 +1,20 @@
+# Static site: publish the planner as index.html. The Google key lives in a Netlify
+# environment variable, not in git; without it the app uses OpenStreetMap search.
+[build]
+  publish = "_site"
+  command = """
+    mkdir -p _site &&
+    cp TokyoSubwayPlanner.html _site/index.html &&
+    cp TokyoSubwayPlanner.html _site/TokyoSubwayPlanner.html &&
+    if [ -n "$GOOGLE_MAPS_API_KEY" ]; then
+      printf "window.GOOGLE_MAPS_API_KEY = '%s';\\n" "$GOOGLE_MAPS_API_KEY" > _site/config.js;
+    else
+      echo "// No GOOGLE_MAPS_API_KEY set; using OpenStreetMap search." > _site/config.js;
+    fi
+  """
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
